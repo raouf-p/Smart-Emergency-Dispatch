@@ -6,107 +6,93 @@
   <title>غرفة العمليات المركزية - نظام النجدة</title>
   <link rel="stylesheet" href="../complaints/style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 15px;
-      height: calc(100vh - 80px);
-      padding: 15px;
-      box-sizing: border-box;
-    }
-    #map {
-      width: 100%;
-      height: 100%;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-    }
-    .panel {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      overflow-y: auto;
-    }
-    .alert-card {
-      background: var(--bg-color);
-      border-right: 4px solid var(--primary);
-      padding: 10px;
-      border-radius: 4px;
-    }
-    .otp-modal {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    .modal-box {
-      background: var(--card-bg);
-      padding: 25px;
-      border-radius: 10px;
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-      border: 1px solid var(--border-color);
-    }
-  </style>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
 
-  <!-- شاشة التحقق بالرمز OTP -->
-  <div id="otpModal" class="otp-modal">
-    <div class="modal-box">
-      <h3>🚨 تأكيد دخول غرفة العمليات</h3>
-      <p>اضغط للحصول على رمز الدخول المرسل لبريد النجدة الرسمي.</p>
-      <button onclick="requestOTP()" class="btn-submit" style="margin-bottom: 10px;">إرسال كود التحقق البريدي</button>
-      <input type="text" id="otpCode" placeholder="أدخل الكود المكون من 6 أرقام" style="text-align: center; letter-spacing: 4px; font-size: 1.2rem;">
-      <button onclick="verifyOTP()" class="btn-submit" style="margin-top: 10px; background: #22c55e;">تأكيد الدخول</button>
+  <!-- النافذة المنبثقة للـ OTP -->
+  <div id="otpModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 9999;">
+    <div style="background: var(--card-bg); padding: 25px; border-radius: 10px; text-align: center; max-width: 400px; width: 90%; border: 1px solid var(--border-color);">
+      <h3>🚨 تأكيد أمان غرفة العمليات</h3>
+      <button onclick="requestOTP()" style="background: var(--accent); color: white; border: none; padding: 10px; border-radius: 6px; width: 100%; margin-bottom: 10px;">إرسال كود التحقق</button>
+      <input type="text" id="otpCode" placeholder="أدخل كود 6 أرقام" style="text-align: center; font-size: 1.2rem; margin-bottom: 10px;">
+      <button onclick="verifyOTP()" style="background: var(--success); color: white; border: none; padding: 10px; border-radius: 6px; width: 100%;">تأكيد وتفعيل</button>
       <div id="otpStatus" style="margin-top: 10px; font-size: 0.85rem;"></div>
     </div>
   </div>
 
   <header>
-    <div class="logo">🚨 غرفة العمليات والتحكم للنجدة</div>
-    <div class="nav-links">
-      <span style="color: #4ade80;">● الاتصال المباشر مفعل</span>
-    </div>
+    <div class="logo">🚨 مركز التحكم والعمليات لولاية الشلف</div>
+    <div><span style="color: #22c55e;">● النظام أونلاين وصوتي تزامني</span></div>
   </header>
 
+  <!-- تقسيم الشبكة إلى 4 أقسام مستقلة بالكامل -->
   <div class="dashboard-grid">
-    <div id="map"></div>
-    <div class="panel">
-      <h3>البلاغات الواردة والدردشة</h3>
-      <div id="alertsContainer">
+    
+    <!-- Div 1: الخريطة التفاعلية -->
+    <div class="grid-box">
+      <h3>🗺️ الخريطة التفاعلية والبلاغات المباشرة</h3>
+      <div id="map" class="box-content" style="border-radius: 6px;"></div>
+    </div>
+
+    <!-- Div 2: قائمة البلاغات الواردة -->
+    <div class="grid-box">
+      <h3>📋 سجل البلاغات الواردة (تحليل AI)</h3>
+      <div id="alertsContainer" class="box-content">
         <p style="color: #94a3b8;">جاري استقبال البلاغات...</p>
       </div>
     </div>
+
+    <!-- Div 3: وحدة المكالمات الصوتية المباشرة (WebRTC) -->
+    <div class="grid-box">
+      <h3>📞 وحدة الاتصال الصوتي المباشر مع المواطنين</h3>
+      <div class="box-content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+        <div id="callStatusText" style="font-size: 1.1rem; color: #38bdf8; margin-bottom: 15px;">بانتظار استقبال مكالمة طوارئ...</div>
+        <audio id="dispatchAudio" autoplay controls style="width: 100%; max-width: 300px;"></audio>
+      </div>
+    </div>
+
+    <!-- Div 4: الدردشة التزامنية والمحادثة -->
+    <div class="grid-box">
+      <h3>💬 المحادثة المباشرة مع المبلغين</h3>
+      <div id="chatBox" class="box-content" style="margin-bottom: 10px; background: var(--bg-color); padding: 8px; border-radius: 6px;"></div>
+      <div style="display: flex; gap: 5px;">
+        <input type="text" id="chatInput" placeholder="اكتب رداً للمواطن...">
+        <button onclick="sendChatMessage()" style="background: var(--accent); color: white; border: none; padding: 0 15px; border-radius: 6px; font-weight: bold;">إرسال</button>
+      </div>
+    </div>
+
   </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    let map = L.map('map').setView([36.165, 1.332], 13);
+    let map = L.map('map').setView([36.165, 1.332], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+    // إعداد سيرفر الصوت المباشر PeerJS بأسماء معرّفة ثابتة
+    const peer = new Peer('dispatch_hq_chlef_server');
+
+    peer.on('call', call => {
+      document.getElementById('callStatusText').style.color = '#22c55e';
+      document.getElementById('callStatusText').textContent = "🎙️ مكالمة صوتية جارية حالياً مع المواطن!";
+      
+      navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+        .then(stream => {
+          call.answer(stream); // الرد وإرسال صوت المايكرفون الخاص بالحاسوب للمواطن
+          call.on('stream', remoteStream => {
+            document.getElementById('dispatchAudio').srcObject = remoteStream;
+          });
+        });
+    });
+
     function requestOTP() {
-      const status = document.getElementById('otpStatus');
-      status.style.color = '#38bdf8';
-      status.textContent = "جاري طلب الكود...";
       fetch('/api/request-otp', { method: 'POST' })
         .then(res => res.json())
-        .then(data => {
-          status.textContent = data.message;
-        });
+        .then(data => { document.getElementById('otpStatus').textContent = data.message; });
     }
 
     function verifyOTP() {
       const code = document.getElementById('otpCode').value;
-      const status = document.getElementById('otpStatus');
       fetch('/api/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -116,13 +102,18 @@
       .then(data => {
         if (data.verified) {
           document.getElementById('otpModal').style.display = 'none';
-          loadAlerts();
-          setInterval(loadAlerts, 5000);
+          initDashboard();
         } else {
-          status.style.color = '#ef4444';
-          status.textContent = data.message;
+          document.getElementById('otpStatus').textContent = data.message;
         }
       });
+    }
+
+    function initDashboard() {
+      loadAlerts();
+      loadChat();
+      setInterval(loadAlerts, 4000);
+      setInterval(loadChat, 3000);
     }
 
     function loadAlerts() {
@@ -130,26 +121,42 @@
         .then(res => res.json())
         .then(data => {
           const container = document.getElementById('alertsContainer');
-          if (data.length === 0) {
-            container.innerHTML = '<p style="color: #94a3b8;">لا توجد بلاغات طوارئ حالياً.</p>';
-            return;
-          }
+          if (data.length === 0) return;
           container.innerHTML = '';
-          data.reverse().forEach(alert => {
+          data.slice().reverse().forEach(alert => {
             const card = document.createElement('div');
-            card.className = 'alert-card';
+            card.className = `alert-card tag-${alert.ai_severity.toLowerCase()}`;
             card.innerHTML = `
-              <strong>[${alert.service}] درجة الخطورة: ${alert.ai_severity}</strong>
-              <p style="margin: 5px 0;">${alert.description}</p>
-              <small style="color: #94a3b8;">${alert.address}</small>
+              <strong>[${alert.service}] - خطورة: ${alert.ai_severity}</strong>
+              <p style="margin: 4px 0;">${alert.description}</p>
+              <small style="color: #94a3b8;">📍 ${alert.address}</small>
             `;
             container.appendChild(card);
-
-            L.marker([alert.latitude, alert.longitude])
-              .addTo(map)
-              .bindPopup(`<b>${alert.service}</b><br>${alert.description}`);
+            L.marker([alert.latitude, alert.longitude]).addTo(map).bindPopup(alert.description);
           });
         });
+    }
+
+    function loadChat() {
+      fetch('/api/chat')
+        .then(res => res.json())
+        .then(messages => {
+          const chatBox = document.getElementById('chatBox');
+          chatBox.innerHTML = messages.map(m => `<div><strong>${m.sender}:</strong> ${m.text}</div>`).join('');
+        });
+    }
+
+    function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      if (!input.value.trim()) return;
+      fetch('/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ sender: 'مشغّل النجدة', text: input.value })
+      }).then(() => {
+        input.value = '';
+        loadChat();
+      });
     }
   </script>
 </body>
