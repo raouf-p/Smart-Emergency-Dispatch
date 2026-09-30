@@ -14,13 +14,13 @@ CORS(app)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 alerts_db = []
+chat_messages = []
 
-# --- إعدادات بريد النجدة الرسمي ---
-EMERGENCY_GMAIL = "your-emergency-email@gmail.com"  # استبدله ببريد النجدة الرسمي
-GMAIL_APP_PASSWORD = "xxxx xxxx xxxx xxxx"         # كلمة سر التطبيقات من Google
+EMERGENCY_GMAIL = "your-emergency-email@gmail.com"
+GMAIL_APP_PASSWORD = "xxxx xxxx xxxx xxxx"
 active_otps = {}
 
-# --- نموذج الذكاء الاصطناعي لتقييم الخطورة ---
+# نموذج الذكاء الاصطناعي
 training_data = [
     ("حريق كبير انفجار جثث فاقد للوعي نزيف حاد اختناق غرق", "CRITICAL"),
     ("Feu grave, explosion, perte de connaissance, accident", "CRITICAL"),
@@ -35,27 +35,10 @@ texts, labels = zip(*training_data)
 ai_model = make_pipeline(TfidfVectorizer(), MultinomialNB())
 ai_model.fit(texts, labels)
 
-def send_otp_email(target_email, code):
-    try:
-        msg = MIMEText(f"رمز الدخول المصرح لغرفة عمليات النجدة هو: {code}\nلا تشارك هذا الرمز مع أي شخص.")
-        msg['Subject'] = '🚨 رمز أمان دخول غرفة العمليات - نظام النجدة'
-        msg['From'] = EMERGENCY_GMAIL
-        msg['To'] = target_email
-
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.login(EMERGENCY_GMAIL, GMAIL_APP_PASSWORD)
-        server.sendmail(EMERGENCY_GMAIL, [target_email], msg.as_string())
-        server.quit()
-        return True
-    except Exception as e:
-        print("خطأ الإرسال:", e)
-        return False
-
 @app.route('/')
 def root():
     return redirect('/complaints/')
 
-# --- مسارات المجلدات الأربعة ---
 @app.route('/complaints/')
 @app.route('/complaints/index.html')
 def serve_complaints_index():
@@ -92,16 +75,12 @@ def serve_dashboard_index():
 def serve_dashboard_files(filename):
     return send_from_directory(os.path.join(BASE_DIR, 'dashboard'), filename)
 
-# --- APIs الحماية والـ OTP ---
+# OTP APIs
 @app.route('/api/request-otp', methods=['POST'])
 def request_otp():
     otp_code = str(random.randint(100000, 999999))
     active_otps['admin'] = otp_code
-    sent = send_otp_email(EMERGENCY_GMAIL, otp_code)
-    if sent:
-        return jsonify({"status": "success", "message": "تم إرسال كود التحقق إلى ايميل النجدة الرسمي"}), 200
-    else:
-        return jsonify({"status": "warning", "message": "كود التجربة المحلي هو: " + otp_code}), 200
+    return jsonify({"status": "warning", "message": "رمز التحقق لدخول السيرفر هو: " + otp_code}), 200
 
 @app.route('/api/verify-otp', methods=['POST'])
 def verify_otp():
@@ -109,10 +88,9 @@ def verify_otp():
     user_code = data.get('code', '').strip()
     if active_otps.get('admin') and user_code == active_otps.get('admin'):
         return jsonify({"status": "success", "verified": True}), 200
-    else:
-        return jsonify({"status": "error", "message": "رمز التحقق غير صحيح!"}), 401
+    return jsonify({"status": "error", "message": "رمز التحقق غير صحيح!"}), 401
 
-# --- APIs البلاغات ---
+# SOS Alerts & Chat APIs
 @app.route('/api/alerts', methods=['GET'])
 def get_alerts():
     return jsonify(alerts_db)
@@ -125,10 +103,9 @@ def process_sos():
     description = data.get('description', '')
 
     if not lat or not lon:
-        return jsonify({"status": "error", "message": "الموقع مفقود"}), 400
+        return jsonify({"status": "error", "message": "الموقع الجغرافي مفقود"}), 400
 
     ai_risk = ai_model.predict([description])[0] if description.strip() else "MEDIUM"
-
     address = "موقع جغرافي غير معنون"
     try:
         res = requests.get(f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=json", headers={'User-Agent': 'EmergencyApp/1.0'}, timeout=3).json()
@@ -147,6 +124,15 @@ def process_sos():
     }
     alerts_db.append(alert_item)
     return jsonify({"status": "success", "result": alert_item}), 200
+
+@app.route('/api/chat', methods=['GET', 'POST'])
+def handle_chat():
+    if request.method == 'POST':
+        data = request.json or {}
+        msg = {"sender": data.get("sender", "مواطن"), "text": data.get("text", "")}
+        chat_messages.append(msg)
+        return jsonify({"status": "success", "messages": chat_messages})
+    return jsonify(chat_messages)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
