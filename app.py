@@ -1,4 +1,7 @@
 import os
+import random
+import smtplib
+from email.mime.text import MIMEText
 import requests
 from flask import Flask, send_from_directory, request, jsonify, redirect
 from flask_cors import CORS
@@ -6,17 +9,18 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import make_pipeline
 
-# إنشاء تطبيق Flask وتفعيل CORS للربط مع الهواتف والأجهزة الخارجية
 app = Flask(__name__, static_folder=None)
 CORS(app)
 
-# تحديد المسار الرئيسي للمشروع
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# قاعدة بيانات مؤقتة لتخزين البلاغات الواردة
 alerts_db = []
 
-# --- تهيئة نموذج الذكاء الاصطناعي (AI Model) ---
+# --- إعدادات بريد النجدة الرسمي ---
+EMERGENCY_GMAIL = "your-emergency-email@gmail.com"  # استبدله ببريد النجدة الرسمي
+GMAIL_APP_PASSWORD = "xxxx xxxx xxxx xxxx"         # كلمة سر التطبيقات من Google
+active_otps = {}
+
+# --- نموذج الذكاء الاصطناعي لتقييم الخطورة ---
 training_data = [
     ("حريق كبير انفجار جثث فاقد للوعي نزيف حاد اختناق غرق", "CRITICAL"),
     ("Feu grave, explosion, perte de connaissance, accident", "CRITICAL"),
@@ -31,18 +35,27 @@ texts, labels = zip(*training_data)
 ai_model = make_pipeline(TfidfVectorizer(), MultinomialNB())
 ai_model.fit(texts, labels)
 
+def send_otp_email(target_email, code):
+    try:
+        msg = MIMEText(f"رمز الدخول المصرح لغرفة عمليات النجدة هو: {code}\nلا تشارك هذا الرمز مع أي شخص.")
+        msg['Subject'] = '🚨 رمز أمان دخول غرفة العمليات - نظام النجدة'
+        msg['From'] = EMERGENCY_GMAIL
+        msg['To'] = target_email
 
-# ==========================================
-# 0. التوجيه التلقائي للمسار الرئيسي
-# ==========================================
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.login(EMERGENCY_GMAIL, GMAIL_APP_PASSWORD)
+        server.sendmail(EMERGENCY_GMAIL, [target_email], msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        print("خطأ الإرسال:", e)
+        return False
+
 @app.route('/')
 def root():
     return redirect('/complaints/')
 
-
-# ==========================================
-# 1. مسارات المجلد الأول: الشكاوي (complaints)
-# ==========================================
+# --- مسارات المجلدات الأربعة ---
 @app.route('/complaints/')
 @app.route('/complaints/index.html')
 def serve_complaints_index():
@@ -52,10 +65,6 @@ def serve_complaints_index():
 def serve_complaints_files(filename):
     return send_from_directory(os.path.join(BASE_DIR, 'complaints'), filename)
 
-
-# ==========================================
-# 2. مسارات المجلد الثاني: عنّا (about)
-# ==========================================
 @app.route('/about/')
 @app.route('/about/about.html')
 def serve_about_index():
@@ -65,10 +74,6 @@ def serve_about_index():
 def serve_about_files(filename):
     return send_from_directory(os.path.join(BASE_DIR, 'about'), filename)
 
-
-# ==========================================
-# 3. مسارات المجلد الثالث: النصائح (tips)
-# ==========================================
 @app.route('/tips/')
 @app.route('/tips/tips.html')
 def serve_tips_index():
@@ -78,10 +83,6 @@ def serve_tips_index():
 def serve_tips_files(filename):
     return send_from_directory(os.path.join(BASE_DIR, 'tips'), filename)
 
-
-# ==========================================
-# 4. مسارات المجلد الرابع: النجدة (dashboard)
-# ==========================================
 @app.route('/dashboard/')
 @app.route('/dashboard/dashboard.html')
 def serve_dashboard_index():
@@ -91,11 +92,27 @@ def serve_dashboard_index():
 def serve_dashboard_files(filename):
     return send_from_directory(os.path.join(BASE_DIR, 'dashboard'), filename)
 
+# --- APIs الحماية والـ OTP ---
+@app.route('/api/request-otp', methods=['POST'])
+def request_otp():
+    otp_code = str(random.randint(100000, 999999))
+    active_otps['admin'] = otp_code
+    sent = send_otp_email(EMERGENCY_GMAIL, otp_code)
+    if sent:
+        return jsonify({"status": "success", "message": "تم إرسال كود التحقق إلى ايميل النجدة الرسمي"}), 200
+    else:
+        return jsonify({"status": "warning", "message": "كود التجربة المحلي هو: " + otp_code}), 200
 
-# ==========================================
-# 5. واجهات برمجة التطبيقات (APIs)
-# ==========================================
+@app.route('/api/verify-otp', methods=['POST'])
+def verify_otp():
+    data = request.json or {}
+    user_code = data.get('code', '').strip()
+    if active_otps.get('admin') and user_code == active_otps.get('admin'):
+        return jsonify({"status": "success", "verified": True}), 200
+    else:
+        return jsonify({"status": "error", "message": "رمز التحقق غير صحيح!"}), 401
 
+# --- APIs البلاغات ---
 @app.route('/api/alerts', methods=['GET'])
 def get_alerts():
     return jsonify(alerts_db)
@@ -103,8 +120,7 @@ def get_alerts():
 @app.route('/api/sos', methods=['POST'])
 def process_sos():
     data = request.json or {}
-    lat = data.get('latitude')
-    lon = data.get('longitude')
+    lat, lon = data.get('latitude'), data.get('longitude')
     service = data.get('service', 'عام')
     description = data.get('description', '')
 
@@ -114,9 +130,8 @@ def process_sos():
     ai_risk = ai_model.predict([description])[0] if description.strip() else "MEDIUM"
 
     address = "موقع جغرافي غير معنون"
-    geo_url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=json"
     try:
-        res = requests.get(geo_url, headers={'User-Agent': 'EmergencyApp/1.0'}, timeout=3).json()
+        res = requests.get(f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=json", headers={'User-Agent': 'EmergencyApp/1.0'}, timeout=3).json()
         address = res.get('display_name', address)
     except Exception:
         pass
@@ -132,7 +147,6 @@ def process_sos():
     }
     alerts_db.append(alert_item)
     return jsonify({"status": "success", "result": alert_item}), 200
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
