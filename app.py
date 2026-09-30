@@ -16,11 +16,34 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 alerts_db = []
 chat_messages = []
 
-EMERGENCY_GMAIL = "your-emergency-email@gmail.com"
-GMAIL_APP_PASSWORD = "xxxx xxxx xxxx xxxx"
+# --- إعدادات البريد الحقيقي لإرسال واستقبال أرقام الـ OTP ---
+TARGET_GMAIL = "raouftgr7@gmail.com"           # البريد الحقيقي الذي يصلك عليه الكود
+SENDER_GMAIL = "raouftgr7@gmail.com"           # البريد المرسل
+GMAIL_APP_PASSWORD = "xxxx xxxx xxxx xxxx"     # كلمة سر التطبيقات من إعدادات أمان Google
+
+# --- القطاعات المتاحة ---
+SECTORS = {
+    "civil_protection": {
+        "role": "الحماية المدنية",
+        "name": "مديرية الحماية المدنية - ولاية الشلف"
+    },
+    "police": {
+        "role": "الشرطة",
+        "name": "الأمن الولائي - الشلف"
+    },
+    "gendarmerie": {
+        "role": "الدرك الوطني",
+        "name": "المجموعة الإقليمية للدرك الوطني"
+    },
+    "admin": {
+        "role": "الكل",
+        "name": "مركز التحكم والعمليات المشتركة"
+    }
+}
+
 active_otps = {}
 
-# نموذج الذكاء الاصطناعي
+# --- نموذج الذكاء الاصطناعي لتقييم الخطورة ---
 training_data = [
     ("حريق كبير انفجار جثث فاقد للوعي نزيف حاد اختناق غرق", "CRITICAL"),
     ("Feu grave, explosion, perte de connaissance, accident", "CRITICAL"),
@@ -35,10 +58,27 @@ texts, labels = zip(*training_data)
 ai_model = make_pipeline(TfidfVectorizer(), MultinomialNB())
 ai_model.fit(texts, labels)
 
+def send_otp_to_user_email(code, sector_name):
+    try:
+        msg = MIMEText(f"🚨 رمز أمان دخول غرفة عمليات ({sector_name}) هو:\n\n{code}\n\nهذا الرمز متغير وصالح لهذه الجلسة فقط.")
+        msg['Subject'] = f'🔐 رمز التحقق لغرفة العمليات - {sector_name}'
+        msg['From'] = SENDER_GMAIL
+        msg['To'] = TARGET_GMAIL
+
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.login(SENDER_GMAIL, GMAIL_APP_PASSWORD)
+        server.sendmail(SENDER_GMAIL, [TARGET_GMAIL], msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        print("خطأ الإرسال البريدي:", e)
+        return False
+
 @app.route('/')
 def root():
     return redirect('/complaints/')
 
+# --- تقديم ملفات الواجهات ---
 @app.route('/complaints/')
 @app.route('/complaints/index.html')
 def serve_complaints_index():
@@ -75,35 +115,73 @@ def serve_dashboard_index():
 def serve_dashboard_files(filename):
     return send_from_directory(os.path.join(BASE_DIR, 'dashboard'), filename)
 
-# OTP APIs
-@app.route('/api/request-otp', methods=['POST'])
-def request_otp():
-    otp_code = str(random.randint(100000, 999999))
-    active_otps['admin'] = otp_code
-    return jsonify({"status": "warning", "message": "رمز التحقق لدخول السيرفر هو: " + otp_code}), 200
-
-@app.route('/api/verify-otp', methods=['POST'])
-def verify_otp():
+# --- APIs الـ OTP المتغير ---
+@app.route('/api/request-sector-otp', methods=['POST'])
+def request_sector_otp():
     data = request.json or {}
-    user_code = data.get('code', '').strip()
-    if active_otps.get('admin') and user_code == active_otps.get('admin'):
-        return jsonify({"status": "success", "verified": True}), 200
-    return jsonify({"status": "error", "message": "رمز التحقق غير صحيح!"}), 401
+    sector_key = data.get('sector', '').strip()
 
-# SOS Alerts & Chat APIs
+    if sector_key not in SECTORS:
+        return jsonify({"status": "error", "message": "القطاع المحدد غير موجود!"}), 400
+
+    sector_info = SECTORS[sector_key]
+    otp_code = str(random.randint(100000, 999999))
+    active_otps[sector_key] = otp_code
+
+    sent = send_otp_to_user_email(otp_code, sector_info['name'])
+
+    if sent:
+        return jsonify({
+            "status": "success",
+            "message": f"تم إرسال كود التحقق المتغير إلى إيميلك (raouftgr7@gmail.com) بنجاح."
+        }), 200
+    else:
+        # كود طوارئ يظهر بالشاشة في حالة لم تدخلApp Password الخاص بجوجل بعد
+        return jsonify({
+            "status": "warning",
+            "message": f"الرمز المتغير للقطاع هو: {otp_code} (تفقد الإيميل أو استخدم الرمز الظاهر)"
+        }), 200
+
+@app.route('/api/verify-sector-otp', methods=['POST'])
+def verify_sector_otp():
+    data = request.json or {}
+    sector_key = data.get('sector', '').strip()
+    user_code = data.get('code', '').strip()
+
+    if sector_key in active_otps and active_otps[sector_key] == user_code:
+        del active_otps[sector_key]
+        sector_info = SECTORS[sector_key]
+        return jsonify({
+            "status": "success",
+            "verified": True,
+            "role": sector_info['role'],
+            "name": sector_info['name']
+        }), 200
+    else:
+        return jsonify({"status": "error", "message": "رمز التحقق غير صحيح أو انتهت صلاحيته!"}), 401
+
+# --- APIs البلاغات والدردشة ---
 @app.route('/api/alerts', methods=['GET'])
 def get_alerts():
-    return jsonify(alerts_db)
+    user_role = request.args.get('role', 'الكل')
+    if user_role == 'الكل':
+        return jsonify(alerts_db)
+    
+    filtered_alerts = [
+        a for a in alerts_db 
+        if a['service'] == user_role or a['service'] == 'طوارئ عامة'
+    ]
+    return jsonify(filtered_alerts)
 
 @app.route('/api/sos', methods=['POST'])
 def process_sos():
     data = request.json or {}
     lat, lon = data.get('latitude'), data.get('longitude')
-    service = data.get('service', 'عام')
+    service = data.get('service', 'طوارئ عامة')
     description = data.get('description', '')
 
     if not lat or not lon:
-        return jsonify({"status": "error", "message": "الموقع الجغرافي مفقود"}), 400
+        return jsonify({"status": "error", "message": "الموقع مفقود"}), 400
 
     ai_risk = ai_model.predict([description])[0] if description.strip() else "MEDIUM"
     address = "موقع جغرافي غير معنون"
