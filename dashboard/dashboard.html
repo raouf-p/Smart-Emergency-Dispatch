@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>غرفة العمليات - نظام النجدة الذكي</title>
+  
+  <!-- مكتبة الخرائط التفاعلية Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- الهيدر العلوي -->
+  <header>
+    <ul class="nav-links">
+      <li><a href="../complaints/index.html">صفحة الشكاوي</a></li>
+      <li><a href="../about/about.html">عنّا</a></li>
+      <li><a href="../tips/tips.html">النصائح</a></li>
+      <li><a href="../dashboard/dashboard.html" class="active staff-btn">أنا أصلاً من النجدة 🚨</a></li>
+    </ul>
+
+    <button class="theme-toggle" id="themeBtn">
+      🌙 الوضع الليلي
+    </button>
+  </header>
+
+  <!-- محتوى لوحة التحكم والخرائط -->
+  <div class="dashboard-container">
+    
+    <!-- القائمة الجانبية للبلاغات الواردة -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>سجل البلاغات الحية</h2>
+        <span class="live-indicator">🔴 بث مباشر</span>
+      </div>
+
+      <div class="alerts-list" id="alertsList">
+        <!-- يتم تحميل البلاغات هنا تلقائياً بواسطة JavaScript -->
+        <p class="empty-msg">جاري تحميل البلاغات أو لا توجد استغاثات حالياً...</p>
+      </div>
+    </aside>
+
+    <!-- حاوية الخريطة التفاعلية -->
+    <main class="map-container">
+      <div id="map"></div>
+    </main>
+
+  </div>
+
+  <!-- مكتبة الخرائط Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

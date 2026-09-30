@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>النصائح والإرشادات - نظام النجدة الذكي</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- الهيدر العلوي -->
+  <header>
+    <ul class="nav-links">
+      <li><a href="../complaints/index.html">صفحة الشكاوي</a></li>
+      <li><a href="../about/about.html">عنّا</a></li>
+      <li><a href="../tips/tips.html" class="active">النصائح</a></li>
+      <li><a href="../dashboard/dashboard.html" class="staff-btn">أنا أصلاً من النجدة 🚨</a></li>
+    </ul>
+
+    <button class="theme-toggle" id="themeBtn">
+      🌙 الوضع الليلي
+    </button>
+  </header>
+
+  <!-- محتوى النصائح الرئيسي -->
+  <main class="main-content">
+    <div class="page-title">
+      <h1>دليل النصائح والإسعافات الأولية</h1>
+      <p>إرشادات وتوجيهات هامة للتصرف السليم أثناء حالات الطوارئ والخطورة</p>
+    </div>
+
+    <!-- أزرار التنقل بين نصائح المؤسسات -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="protection-tips">🚒 الحماية المدنية</button>
+      <button class="tab-btn" data-tab="police-tips">🚓 الشرطة</button>
+      <button class="tab-btn" data-tab="gendarmerie-tips">🛡️ الدرك الوطني</button>
+      <button class="tab-btn" data-tab="general-tips">⚠️ السلامة العامة</button>
+    </div>
+
+    <!-- تبويب نصائح الحماية المدنية (الإسعافات الأولية) -->
+    <div class="tab-content active" id="protection-tips">
+      <div class="tips-grid">
+        
+        <div class="tip-card">
+          <div class="tip-header">
+            <span class="tip-icon">🫀</span>
+            <h3>الإنعاش الرئوي (CPR)</h3>
+          </div>
+          <p>عند رؤية شخص فاقد للوعي ولا يتنفس:</p>
+          <ol>
+            <li>اتصل بالحماية المدنية (14) فوراً.</li>
+            <li>ضع يديك في منتصف صدر المصاب وضغط بقوة وسرعة (100-120 ضغطة في الدقيقة).</li>
+            <li>استمر حتى وصول فريق الإسعاف.</li>
+          </ol>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-header">
+            <span class="tip-icon">🔥</span>
+            <h3>التعامل مع الحروق</h3>
+          </div>
+          <p>خطوات إسعاف الحروق البسيطة والمتوسطة:</p>
+          <ul>
+            <li>ضع مكان الحرق تحت ماء جارٍ معتدل الحرارة لمدة 10 إلى 15 دقيقة.</li>
+            <li>لا تضع الثلج أو معجون الأسنان على الحرق مطلقاً.</li>
+            <li>غطِ الحرق بقطعة قماش معقمة ونظيفة.</li>
+          </ul>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-header">
+            <span class="tip-icon">🫁</span>
+            <h3>الإنسداد الخنقي (الاختناق)</h3>
+          </div>
+          <p>عند غصص شخص وعدم قدرته على التنفس أو الكلام:</p>
+          <ul>
+            <li>قف خلف المصاب ولف يديك حول خصره.</li>
+            <li>اضغط بقوة لأعلى وللداخل أسفل القفص الصدري مباشرة (مناورة هيمليخ).</li>
+            <li>كرر الضغطات حتى يخرج الجسم الغريب.</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- تبويب نصائح الشرطة (السرقة والابتزاز) -->
+    <div class="tab-content" id="police-tips">
+      <div class="tips-grid">
+
+        <div class="tip-card">
+          <div class="tip-header">
+            <span class="tip-icon">👜</span>
+            <h3>التصرف عند التعرض للسرقة</h3>
+          </div>
+          <ul>
+            <li>حافظ على هدوئك ولا تدخل في مواجهة جسدية مع الجاني إذا كان مسلحاً.</li>
+            <li>حاول حفظ ملامح الجاني، ملابسه، اتجاه هروبه، ورقم لوحة السيارة إن وجدت.</li>
+            <li>بلغ الشرطة (17) فوراً وقدم موقعك الدقيق عبر تطبيق النجدة.</li>
+          </ul>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-header">
+            <span class="tip-icon">💻</span>
+            <h3>مكافحة الابتزاز الإلكتروني</h3>
+          </div>
+          <ul>
+            <li>لا تحذف الرسائل أو المحادثات وسجل أدلة الابتزاز (Screenshots).</li>
+            <li>لا تخضع لطلبات المبتز المالية أو الشخصية أبداً.</li>
+            <li>توجه لفرقة مكافحة الجريمة الإلكترونية التابعة للشرطة فوراً.</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- تبويب نصائح الدرك الوطني (الخطف والسلامة) -->
+    <div class="tab-content" id="gendarmerie-tips">
+      <div class="tips-grid">
+
+        <div class="tip-card alert-border">
+          <div class="tip-header">
+            <span class="tip-icon">🚨</span>
+            <h3>ماذا تفعل عند حالات الخطف؟</h3>
+          </div>
+          <ul>
+            <li><strong>إذا كنت الشاهد:</strong> اتصل بـ (1055) فوراً وسجل نوع ولون السيارة ورقم اللوحة.</li>
+            <li><strong>تنبيه الأطفال:</strong> عدم الحديث مع الغرباء أو الركوب في سيارات غير معروفة تحت أي ظرف.</li>
+            <li>استخدم خاصية مشاركة الموقع الحي (GPS) المتاحة في المنصة لتسريع وصول التغطية الأمنية.</li>
+          </ul>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-header">
+            <span class="tip-icon">🚗</span>
+            <h3>سلامة الطرقات الكبرى</h3>
+          </div>
+          <ul>
+            <li>تجنب السياقة عند الشعور بالتعب أو النعاس وخذ قسطاً من الراحة في محطات الخدمات.</li>
+            <li>احفظ مسافة الأمان الكافية وخاصة عند تقلبات الأحوال الجوية والضباب.</li>
+            <li>في حال تعطل سيارتك بالطريق السريع، شغل أضواء الخطر وركن السيارة على شريط التوقف الاضطراري.</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+   
+    <div class="tab-content" id="general-tips">
+      <div class="tips-grid">
+
+        <div class="tip-card">
+          <div class="tip-header">
+            <span class="tip-icon">⚡</span>
+            <h3>تسرب الغاز والكهرباء</h3>
+          </div>
+          <ul>
+            <li>عند اشتمام رائحة غاز: لا تشعل أي مصباح كهربائي أو ولاعة.</li>
+            <li>افتح النوافذ والأبواب فوراً لتهوية المكان واغلق القفل الرئيسي للغاز.</li>
+            <li>اخرج من المنزل واتصل برقم الحماية المدنية أو الطوارئ.</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

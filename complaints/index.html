@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام النجدة والشكاوي الذكي</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  
+  <header>
+    <ul class="nav-links">
+      <li><a href="../complaints/index.html" class="active">صفحة الشكاوي</a></li>
+      <li><a href="../about/about.html">عنّا</a></li>
+      <li><a href="../tips/tips.html">النصائح</a></li>
+      <li><a href="../dashboard/dashboard.html" class="staff-btn">أنا أصلاً من النجدة 🚨</a></li>
+    </ul>
+
+    <button class="theme-toggle" id="themeBtn">
+      🌙 الوضع الليلي
+    </button>
+  </header>
+
+  
+  <main class="main-content">
+    <div class="page-title">
+      <h1>مركز تقديم الشكاوي والاستغاثة</h1>
+      <p>اختر الجهة المطلوبة فوراً للحصول على المساعدة السريعة</p>
+    </div>
+
+    <div class="boxes-grid">
+      
+      
+      <div class="service-box">
+        <div class="box-icon">🚒</div>
+        <div class="box-title">الحماية المدنية</div>
+        <div class="box-desc">الحرائق، حوادث المرور والإسعاف المستعجل</div>
+        
+        <div class="options-container">
+          <a href="tel:14" class="action-btn btn-call">📞 مكالمة مباشرة (14)</a>
+          <button class="action-btn btn-sms" data-service="الحماية المدنية">💬 إرسال SMS (GPS)</button>
+        </div>
+      </div>
+
+      
+      <div class="service-box">
+        <div class="box-icon">🚓</div>
+        <div class="box-title">الشرطة</div>
+        <div class="box-desc">الجرائم، السرقة، والاعتداءات داخل المدن</div>
+        
+        <div class="options-container">
+          <a href="tel:17" class="action-btn btn-call">📞 مكالمة مباشرة (17)</a>
+          <button class="action-btn btn-sms" data-service="الشرطة">💬 إرسال SMS (GPS)</button>
+        </div>
+      </div>
+
+      
+      <div class="service-box">
+        <div class="box-icon">🛡️</div>
+        <div class="box-title">الدرك الوطني</div>
+        <div class="box-desc">أمن الطرقات الكبرى والمناطق شبه الحضرية</div>
+        
+        <div class="options-container">
+          <a href="tel:1055" class="action-btn btn-call">📞 مكالمة مباشرة (1055)</a>
+          <button class="action-btn btn-sms" data-service="الدرك الوطني">💬 إرسال SMS (GPS)</button>
+        </div>
+      </div>
+
+      
+      <div class="service-box">
+        <div class="box-icon">🚑</div>
+        <div class="box-title">الإسعاف الطبي (SAMU)</div>
+        <div class="box-desc">الحالات الطبية الحرجة والنقل الطبي السريع</div>
+        
+        <div class="options-container">
+          <a href="tel:16" class="action-btn btn-call">📞 مكالمة مباشرة (16)</a>
+          <button class="action-btn btn-sms" data-service="الإسعاف الطبي">💬 إرسال SMS (GPS)</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
