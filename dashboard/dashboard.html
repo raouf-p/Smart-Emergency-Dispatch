@@ -4,10 +4,77 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>غرفة العمليات المركزية - نظام النجدة</title>
-<link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<style>
+    :root {
+        --bg-color: #0f172a;
+        --card-bg: #1e293b;
+        --primary: #3b82f6;
+        --accent: #06b6d4;
+        --text: #f8fafc;
+    }
+    body {
+        margin: 0;
+        background-color: var(--bg-color);
+        color: var(--text);
+        font-family: Arial, sans-serif;
+    }
+    header {
+        background: var(--card-bg);
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #334155;
+    }
+    .logo {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 350px 300px;
+        gap: 15px;
+        padding: 15px;
+    }
+    .grid-box {
+        background: var(--card-bg);
+        border-radius: 8px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #334155;
+    }
+    .grid-box h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 1rem;
+        color: #38bdf8;
+    }
+    .box-content {
+        flex: 1;
+        overflow-y: auto;
+    }
+    #map {
+        width: 100%;
+        height: 100%;
+        border-radius: 6px;
+        z-index: 1;
+    }
+    .alert-card {
+        background: #334155;
+        padding: 8px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+        border-right: 4px solid var(--primary);
+    }
+    .tag-high { border-right-color: #ef4444 !important; }
+    .tag-medium { border-right-color: #f59e0b !important; }
+</style>
 </head>
 <body>
 
@@ -22,29 +89,30 @@
 <div class="dashboard-grid">
     <div class="grid-box">
         <h3>🗺️ الخريطة التفاعلية</h3>
-        <div id="map" class="box-content" style="border-radius: 6px;"></div>
+        <div id="map"></div>
     </div>
     
     <div class="grid-box">
         <h3>📋 البلاغات الواردة لقطاعك</h3>
         <div id="alertsContainer" class="box-content">
-            <p style="color: #94a3b8;">...جاري استقبال البلاغات</p>
+            <p style="color: #94a3b8; font-size: 0.9rem;">...جاري استقبال البلاغات</p>
         </div>
     </div>
 
     <div class="grid-box">
+        <h3>📞 المكالمات الصوتية المباشرة</h3>
         <div class="box-content" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
-            <div id="callStatusText" style="font-size: 1.1rem; color: #38bdf8; margin-bottom: 15px;">📞 انتظار استقبال مكالمة...</div>
-            <audio id="dispatchAudio" autoplay controls style="width: 100%; max-width: 300px;"></audio>
+            <div id="callStatusText" style="font-size: 1rem; color: #38bdf8; margin-bottom: 10px;">📞 انتظار استقبال مكالمة...</div>
+            <audio id="dispatchAudio" autoplay controls style="width: 100%; max-width: 250px;"></audio>
         </div>
     </div>
 
     <div class="grid-box">
         <h3>💬 المحادثة المباشرة مع المبلغين</h3>
-        <div id="chatBox" class="box-content" style="margin-bottom: 10px; background: var(--bg-color); padding: 8px; border-radius: 6px; height: 150px; overflow-y: auto;"></div>
+        <div id="chatBox" class="box-content" style="margin-bottom: 8px; background: #0f172a; padding: 8px; border-radius: 6px; font-size: 0.85rem;"></div>
         <div style="display: flex; gap: 5px;">
-            <input type="text" id="chatInput" placeholder="اكتب رداً للمواطن..." style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #475569; background: #1e293b; color: white;">
-            <button onclick="sendChatMessage()" style="background: var(--accent); color: white; border: none; padding: 0 15px; border-radius: 6px; cursor: pointer;">إرسال</button>
+            <input type="text" id="chatInput" placeholder="اكتب رداً للمواطن..." style="flex: 1; padding: 6px; border-radius: 6px; border: 1px solid #475569; background: #1e293b; color: white; font-size: 0.85rem;">
+            <button onclick="sendChatMessage()" style="background: var(--accent); color: white; border: none; padding: 0 12px; border-radius: 6px; cursor: pointer;">إرسال</button>
         </div>
     </div>
 </div>
@@ -92,7 +160,7 @@ function loadAlerts() {
         container.innerHTML = '';
         data.slice().reverse().forEach(alert => {
             const card = document.createElement('div');
-            card.className = `alert-card tag-${alert.ai_severity.toLowerCase()}`;
+            card.className = `alert-card tag-${alert.ai_severity ? alert.ai_severity.toLowerCase() : 'medium'}`;
             card.innerHTML = `
                 <strong>[${alert.service}] - خطورة : ${alert.ai_severity}</strong>
                 <p style="margin: 4px 0;">${alert.description}</p>
