@@ -122,7 +122,6 @@
 let map = L.map('map').setView([36.165, 1.332], 12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-let currentRole = 'admin';
 let currentName = 'غرفة العمليات المركزية';
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -132,7 +131,7 @@ window.addEventListener('DOMContentLoaded', () => {
 function setupDashboardUI() {
     loadAlerts();
     loadChat();
-    setInterval(loadAlerts, 4000);
+    setInterval(loadAlerts, 3000);
     setInterval(loadChat, 3000);
 }
 
@@ -153,24 +152,31 @@ peer.on('call', call => {
     });
 });
 
-function loadAlerts() {
-    fetch(`/api/alerts?role=${encodeURIComponent(currentRole)}`)
+function loadAlerts() {  
+    fetch('/api/alerts')
     .then(res => res.json())
     .then(data => {
         const container = document.getElementById('alertsContainer');
         container.innerHTML = '';
+        if(!data || data.length === 0) {
+            container.innerHTML = '<p style="color: #94a3b8; font-size: 0.9rem;">...لا توجد بلاغات حالياً</p>';
+            return;
+        }
         data.slice().reverse().forEach(alert => {
             const card = document.createElement('div');
-            card.className = `alert-card tag-${alert.ai_severity ? alert.ai_severity.toLowerCase() : 'medium'}`;
+            const severity = alert.ai_severity ? alert.ai_severity.toLowerCase() : 'medium';
+            card.className = `alert-card tag-${severity}`;
             card.innerHTML = `
-                <strong>[${alert.service}] - خطورة : ${alert.ai_severity}</strong>
-                <p style="margin: 4px 0;">${alert.description}</p>
-                <small style="color: #94a3b8;">📍 ${alert.address}</small>
+                <strong>[${alert.service || 'طوارئ'}] - خطورة : ${alert.ai_severity || 'عادية'}</strong>
+                <p style="margin: 4px 0;">${alert.description || 'بدون وصف'}</p>
+                <small style="color: #94a3b8;">📍 ${alert.address || 'موقع غير محدد'}</small>
             `;
             container.appendChild(card);
-            L.marker([alert.latitude, alert.longitude]).addTo(map).bindPopup(alert.description);
+            if(alert.latitude && alert.longitude) {
+                L.marker([alert.latitude, alert.longitude]).addTo(map).bindPopup(alert.description || 'بلاغ طوارئ');
+            }
         });
-    });
+    }).catch(err => console.log(err));
 }
 
 function loadChat() {
@@ -178,8 +184,10 @@ function loadChat() {
     .then(res => res.json())
     .then(messages => {
         const chatBox = document.getElementById('chatBox');
-        chatBox.innerHTML = messages.map(m => `<div><strong>${m.sender}:</strong> ${m.text}</div>`).join('');
-    });
+        if(messages && messages.length > 0) {
+            chatBox.innerHTML = messages.map(m => `<div><strong>${m.sender}:</strong> ${m.text}</div>`).join('');
+        }
+    }).catch(err => console.log(err));
 }
 
 function sendChatMessage() {
