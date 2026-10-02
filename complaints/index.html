@@ -1,106 +1,79 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="htmlTag">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>نظام الطوارئ والبلاغات الذكي</title>
+  <title id="pageTitle">نظام الطوارئ - تقديم بلاغ</title>
   <link rel="stylesheet" href="style.css">
-  <script>
-    // توجيه مستخدم الحاسوب تلقائياً إلى غرفة العمليات
-    window.addEventListener('DOMContentLoaded', () => {
-      if (window.innerWidth > 768) {
-        window.location.href = '/dashboard/';
-      }
-    });
-  </script>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
 
   <header>
-    <div class="logo">🚨 نظام الطوارئ الذكي</div>
+    <div class="logo" id="logoText">🚨 نظام الطوارئ الذكي</div>
     <ul class="nav-links">
-      <li><a href="/complaints/" class="active citizen-link">تقديم بلاغ</a></li>
-      <li><a href="/tips/" class="citizen-link">إرشادات السلامة</a></li>
-      <li><a href="/about/" class="citizen-link">عن النظام</a></li>
-      <li><a href="/dashboard/" class="staff-btn">أنا أصلاً من النجدة 🚨</a></li>
+      <li><a href="/complaints/" class="active" id="navComplaints">صفحة الشكاوي</a></li>
+      <li><a href="/tips/" id="navTips">النصائح</a></li>
+      <li><a href="/about/" id="navAbout">عنّا</a></li>
     </ul>
+    <div class="controls">
+      <select id="langSelect" onchange="changeLanguage(this.value)">
+        <option value="ar">العربية</option>
+        <option value="eng">ENG</option>
+        <option value="fra">FRA</option>
+      </select>
+      <button id="themeToggle" onclick="toggleTheme()">🌙</button>
+    </div>
   </header>
 
-  <div class="container">
-    <h2>تقديم بلاغ طوارئ عاجل</h2>
-    <p>يتم تحديد موقعك التلقائي وإرساله لفرق النجدة فور التأكيد.</p>
+  <div class="main-container">
+    <h2 class="page-title" id="mainHeaderTitle">اختر مصلحة الطوارئ المطلوبة</h2>
 
-    <form id="sosForm">
-      <div class="form-group">
-        <label for="service">جهة الطوارئ المطلوبة:</label>
-        <select id="service" required>
-          <option value="الحماية المدنية">الحماية المدنية (الإسعاف والإطفاء)</option>
-          <option value="الشرطة">الشرطة والأمن الوطني</option>
-          <option value="الدرك الوطني">الدرك الوطني</option>
-          <option value="طوارئ عامة">طوارئ عامة</option>
-        </select>
+    <div class="sectors-grid">
+      <div class="sector-card" onclick="selectSector('الحماية المدنية', this)">
+        <div class="sector-icon">🚒</div>
+        <h3 id="sectorCivil">الحماية المدنية</h3>
+      </div>
+      <div class="sector-card" onclick="selectSector('الشرطة', this)">
+        <div class="sector-icon">🚓</div>
+        <h3 id="sectorPolice">الشرطة</h3>
+      </div>
+      <div class="sector-card" onclick="selectSector('الدرك الوطني', this)">
+        <div class="sector-icon">🚔</div>
+        <h3 id="sectorGendarmerie">الدرك الوطني</h3>
+      </div>
+      <div class="sector-card" onclick="selectSector('السلامة العامة', this)">
+        <div class="sector-icon">⚠️</div>
+        <h3 id="sectorSafety">السلامة العامة</h3>
+      </div>
+    </div>
+
+    <div id="actionPanel" class="action-panel" style="display: none;">
+      <h3 id="panelTitle" class="panel-title">الخدمة المحددة</h3>
+      
+      <div class="action-buttons">
+        <button type="button" class="btn-call" onclick="showCallSection()" id="btnCallText">📞 اتصل بنا (مكالمة صوتية)</button>
+        <button type="button" class="btn-msg" onclick="showMsgSection()" id="btnMsgText">✉️ إرسال رسالة بلاغ</button>
       </div>
 
-      <div class="form-group">
-        <label for="description">وصف حالة الطوارئ:</label>
-        <textarea id="description" rows="4" placeholder="اكتب تفاصيل ما حدث (مثال: حادث سير، حريق، إصابة...)" required></textarea>
+      <div id="callSection" class="sub-section" style="display: none;">
+        <button type="button" class="btn-start-call" onclick="startVoiceCall()" id="btnStartCallText">🎙️ بدء الاتصال الصوتي المباشر</button>
+        <div id="callStatus">غير متصل حالياً</div>
+        <audio id="remoteAudio" autoplay></audio>
       </div>
 
-      <button type="submit" class="btn-submit">🚨 إرسال البلاغ فوراً مع الموقع</button>
-    </form>
+      <div id="msgSection" class="sub-section" style="display: none;">
+        <form id="sosForm">
+          <label id="labelDesc">وصف حالة الطوارئ:</label>
+          <textarea id="description" rows="3" placeholder="اكتب تفاصيل الحالة هنا..." required></textarea>
+          <button type="submit" class="btn-submit" id="btnSubmitText">📍 إرسال البلاغ والموقع الآن</button>
+        </form>
+        <div id="statusMsg"></div>
+      </div>
+    </div>
 
-    <div id="statusMsg" style="margin-top: 15px; font-weight: bold; text-align: center;"></div>
   </div>
 
-  <script>
-    document.getElementById('sosForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const statusDiv = document.getElementById('statusMsg');
-      statusDiv.style.color = '#38bdf8';
-      statusDiv.textContent = "جاري تحديد موقعك الـ GPS وإرسال البلاغ...";
-
-      if (!navigator.geolocation) {
-        statusDiv.style.color = '#ef4444';
-        statusDiv.textContent = "خاصية الموقع غير مدعومة في متصفحك.";
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const payload = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            service: document.getElementById('service').value,
-            description: document.getElementById('description').value
-          };
-
-          fetch('/api/sos', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          })
-          .then(res => res.json())
-          .then(data => {
-            if (data.status === 'success') {
-              statusDiv.style.color = '#4ade80';
-              statusDiv.textContent = "تم إرسال البلاغ بنجاح! تم تحديد الموقع ودرجة الخطورة: " + data.result.ai_severity;
-              document.getElementById('sosForm').reset();
-            } else {
-              statusDiv.style.color = '#ef4444';
-              statusDiv.textContent = "حدث خطأ: " + data.message;
-            }
-          })
-          .catch(() => {
-            statusDiv.style.color = '#ef4444';
-            statusDiv.textContent = "تعذر الاتصال بالسيرفر.";
-          });
-        },
-        () => {
-          statusDiv.style.color = '#ef4444';
-          statusDiv.textContent = "يرجى السماح بصلاحية الموقع الجغرافي (GPS) لإرسال البلاغ.";
-        }
-      );
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
