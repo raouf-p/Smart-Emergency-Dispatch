@@ -1,218 +1,130 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>غرفة العمليات المركزية - نظام النجدة</title>
-  <link rel="stylesheet" href="../complaints/style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>غرفة العمليات المركزية - نظام النجدة</title>
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
 
-
-  <div id="loginModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); display: flex; justify-content: center; align-items: center; z-index: 9999;">
-    <div style="background: var(--card-bg); padding: 30px; border-radius: 12px; text-align: center; max-width: 420px; width: 90%; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-      <h2 style="color: var(--primary); margin-top: 0;">🚨 الدخول البريدي التزمني (OTP)</h2>
-      <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 20px;">سيتم إرسال كود دخول متغير إلى إيميلك الشخصي مباشرة</p>
-      
-      <div style="margin-bottom: 15px; text-align: right;">
-        <label style="font-size: 0.85rem; font-weight: bold;">اختر القطاع:</label>
-        <select id="sectorSelect" style="margin-top: 5px;">
-          <option value="civil_protection">الحماية المدنية (إسعاف / إطفاء)</option>
-          <option value="police">الشرطة والأمن الوطني</option>
-          <option value="gendarmerie">الدرك الوطني</option>
-          <option value="admin">المديرية العامة (جميع القطاعات)</option>
-        </select>
-      </div>
-
-      <button onclick="requestOTP()" style="background: var(--accent); color: white; border: none; padding: 10px; border-radius: 6px; width: 100%; font-weight: bold; margin-bottom: 15px;">
-        📧 إرسال كود أمان إلى raouftgr7@gmail.com
-      </button>
-
-      <div style="margin-bottom: 15px; text-align: right;">
-        <label style="font-size: 0.85rem; font-weight: bold;">أدخل الكود المكون من 6 أرقام:</label>
-        <input type="text" id="otpInput" placeholder="أدخل الكود من الإيميل" style="margin-top: 5px; text-align: center; font-size: 1.2rem; letter-spacing: 3px;">
-      </div>
-
-      <button onclick="verifyOTP()" style="background: var(--success); color: white; border: none; padding: 12px; border-radius: 6px; width: 100%; font-size: 1rem; font-weight: bold;">
-        تأكيد ودخول غرفة العمليات
-      </button>
-
-      <div id="statusMessage" style="margin-top: 15px; font-size: 0.85rem; font-weight: bold;"></div>
-    </div>
-  </div>
-
-  <header>
+<header>
     <div class="logo" id="headerTitle">🚨 مركز التحكم والعمليات</div>
     <div style="display: flex; gap: 15px; align-items: center;">
-      <span id="accountBadge" style="background: #334155; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; color: #38bdf8;">غير مسجل</span>
-      <button onclick="logout()" style="background: #ef4444; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.85rem;">خروج</button>
+        <span id="accountBadge" style="background: #334155; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; color: #fff;">القطاع : المديرية العامة</span>
+        <button onclick="logout()" style="background: #ef4444; color: white; border: none; padding: 5px 12px; border-radius: 6px; cursor: pointer;">تسجيل خروج</button>
     </div>
-  </header>
+</header>
 
-  <div class="dashboard-grid">
+<div class="dashboard-grid">
     <div class="grid-box">
-      <h3>🗺️ الخريطة التفاعلية</h3>
-      <div id="map" class="box-content" style="border-radius: 6px;"></div>
+        <h3>🗺️ الخريطة التفاعلية</h3>
+        <div id="map" class="box-content" style="border-radius: 6px;"></div>
     </div>
-
+    
     <div class="grid-box">
-      <h3>📋 البلاغات الواردة لقطاعك</h3>
-      <div id="alertsContainer" class="box-content">
-        <p style="color: #94a3b8;">بانتظار تسجيل الدخول...</p>
-      </div>
-    </div>
-
-    <div class="grid-box">
-      <h3>📞 المكالمات الصوتية المباشرة</h3>
-      <div class="box-content" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-        <div id="callStatusText" style="font-size: 1.1rem; color: #38bdf8; margin-bottom: 15px;">بانتظار استقبال مكالمة...</div>
-        <audio id="dispatchAudio" autoplay controls style="width: 100%; max-width: 300px;"></audio>
-      </div>
+        <h3>📋 البلاغات الواردة لقطاعك</h3>
+        <div id="alertsContainer" class="box-content">
+            <p style="color: #94a3b8;">...جاري استقبال البلاغات</p>
+        </div>
     </div>
 
     <div class="grid-box">
-      <h3>💬 المحادثة المباشرة مع المبلغين</h3>
-      <div id="chatBox" class="box-content" style="margin-bottom: 10px; background: var(--bg-color); padding: 8px; border-radius: 6px;"></div>
-      <div style="display: flex; gap: 5px;">
-        <input type="text" id="chatInput" placeholder="اكتب رداً للمواطن...">
-        <button onclick="sendChatMessage()" style="background: var(--accent); color: white; border: none; padding: 0 15px; border-radius: 6px; font-weight: bold;">إرسال</button>
-      </div>
+        <div class="box-content" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div id="callStatusText" style="font-size: 1.1rem; color: #38bdf8; margin-bottom: 15px;">📞 انتظار استقبال مكالمة...</div>
+            <audio id="dispatchAudio" autoplay controls style="width: 100%; max-width: 300px;"></audio>
+        </div>
     </div>
-  </div>
 
-  <script>
-    let map = L.map('map').setView([36.165, 1.332], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    <div class="grid-box">
+        <h3>💬 المحادثة المباشرة مع المبلغين</h3>
+        <div id="chatBox" class="box-content" style="margin-bottom: 10px; background: var(--bg-color); padding: 8px; border-radius: 6px; height: 150px; overflow-y: auto;"></div>
+        <div style="display: flex; gap: 5px;">
+            <input type="text" id="chatInput" placeholder="اكتب رداً للمواطن..." style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #475569; background: #1e293b; color: white;">
+            <button onclick="sendChatMessage()" style="background: var(--accent); color: white; border: none; padding: 0 15px; border-radius: 6px; cursor: pointer;">إرسال</button>
+        </div>
+    </div>
+</div>
 
-    let currentRole = localStorage.getItem('user_role') || null;
-    let currentName = localStorage.getItem('user_name') || null;
+<script>
+let map = L.map('map').setView([36.165, 1.332], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    window.addEventListener('DOMContentLoaded', () => {
-      if (currentRole && currentName) {
-        document.getElementById('loginModal').style.display = 'none';
-        setupDashboardUI();
-      }
-    });
+let currentRole = 'admin';
+let currentName = 'غرفة العمليات المركزية';
 
-    function requestOTP() {
-      const sector = document.getElementById('sectorSelect').value;
-      const msg = document.getElementById('statusMessage');
-      msg.style.color = '#38bdf8';
-      msg.textContent = "جاري الإرسال لـ raouftgr7@gmail.com...";
+window.addEventListener('DOMContentLoaded', () => {
+    setupDashboardUI();
+});
 
-      fetch('/api/request-sector-otp', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ sector: sector })
-      })
-      .then(res => res.json())
-      .then(data => {
-        msg.textContent = data.message;
-      });
-    }
+function setupDashboardUI() {
+    loadAlerts();
+    loadChat();
+    setInterval(loadAlerts, 4000);
+    setInterval(loadChat, 3000);
+}
 
-    function verifyOTP() {
-      const sector = document.getElementById('sectorSelect').value;
-      const code = document.getElementById('otpInput').value;
-      const msg = document.getElementById('statusMessage');
+function logout() {
+    location.reload();
+}
 
-      fetch('/api/verify-sector-otp', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ sector: sector, code: code })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.verified) {
-          localStorage.setItem('user_role', data.role);
-          localStorage.setItem('user_name', data.name);
-          currentRole = data.role;
-          currentName = data.name;
-          document.getElementById('loginModal').style.display = 'none';
-          setupDashboardUI();
-        } else {
-          msg.style.color = '#ef4444';
-          msg.textContent = data.message;
-        }
-      });
-    }
-
-    function setupDashboardUI() {
-      document.getElementById('headerTitle').textContent = `🚨 ${currentName}`;
-      document.getElementById('accountBadge').textContent = `القطاع: ${currentRole}`;
-      
-      loadAlerts();
-      loadChat();
-      setInterval(loadAlerts, 4000);
-      setInterval(loadChat, 3000);
-    }
-
-    function logout() {
-      localStorage.clear();
-      location.reload();
-    }
-
-    const peer = new Peer('dispatch_hq_chlef_server');
-    peer.on('call', call => {
-      document.getElementById('callStatusText').style.color = '#22c55e';
-      document.getElementById('callStatusText').textContent = "🎙️ مكالمة جاريه بصوت حقيقي مع المواطن!";
-      navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-        .then(stream => {
-          call.answer(stream);
-          call.on('stream', remoteStream => {
+const peer = new Peer('dispatch_hq_chlef_server');
+peer.on('call', call => {
+    document.getElementById('callStatusText').style.color = '#22c55e';
+    document.getElementById('callStatusText').textContent = '📞 مكالمة جارية بصوت حقيقي مع المواطن';
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    .then(stream => {
+        call.answer(stream);
+        call.on('stream', remoteStream => {
             document.getElementById('dispatchAudio').srcObject = remoteStream;
-          });
         });
     });
+});
 
-    function loadAlerts() {
-      fetch(`/api/alerts?role=${encodeURIComponent(currentRole)}`)
-        .then(res => res.json())
-        .then(data => {
-          const container = document.getElementById('alertsContainer');
-          if (data.length === 0) {
-            container.innerHTML = `<p style="color: #94a3b8;">لا توجد بلاغات طوارئ موجهة لـ (${currentRole}) حالياً.</p>`;
-            return;
-          }
-          container.innerHTML = '';
-          data.slice().reverse().forEach(alert => {
+function loadAlerts() {
+    fetch(`/api/alerts?role=${encodeURIComponent(currentRole)}`)
+    .then(res => res.json())
+    .then(data => {
+        const container = document.getElementById('alertsContainer');
+        container.innerHTML = '';
+        data.slice().reverse().forEach(alert => {
             const card = document.createElement('div');
             card.className = `alert-card tag-${alert.ai_severity.toLowerCase()}`;
             card.innerHTML = `
-              <strong>[${alert.service}] - خطورة: ${alert.ai_severity}</strong>
-              <p style="margin: 4px 0;">${alert.description}</p>
-              <small style="color: #94a3b8;">📍 ${alert.address}</small>
+                <strong>[${alert.service}] - خطورة : ${alert.ai_severity}</strong>
+                <p style="margin: 4px 0;">${alert.description}</p>
+                <small style="color: #94a3b8;">📍 ${alert.address}</small>
             `;
             container.appendChild(card);
             L.marker([alert.latitude, alert.longitude]).addTo(map).bindPopup(alert.description);
-          });
         });
-    }
+    });
+}
 
-    function loadChat() {
-      fetch('/api/chat')
-        .then(res => res.json())
-        .then(messages => {
-          const chatBox = document.getElementById('chatBox');
-          chatBox.innerHTML = messages.map(m => `<div><strong>${m.sender}:</strong> ${m.text}</div>`).join('');
-        });
-    }
+function loadChat() {
+    fetch('/api/chat')
+    .then(res => res.json())
+    .then(messages => {
+        const chatBox = document.getElementById('chatBox');
+        chatBox.innerHTML = messages.map(m => `<div><strong>${m.sender}:</strong> ${m.text}</div>`).join('');
+    });
+}
 
-    function sendChatMessage() {
-      const input = document.getElementById('chatInput');
-      if (!input.value.trim()) return;
-      fetch('/api/chat', {
+function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    if (!input.value.trim()) return;
+    fetch('/api/chat', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sender: currentName, text: input.value })
-      }).then(() => {
+    }).then(() => {
         input.value = '';
         loadChat();
-      });
-    }
-  </script>
+    });
+}
+</script>
 </body>
 </html>
