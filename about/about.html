@@ -8,86 +8,89 @@
 </head>
 <body>
 
-  <!-- الهيدر العلوي -->
-  <header>
+  
+<header>
+    <div class="logo" id="logoText">🚨 نظام الطوارئ الذكي</div>
     <ul class="nav-links">
-      <li><a href="../complaints/index.html">صفحة الشكاوي</a></li>
-      <li><a href="../about/about.html" class="active">عنّا</a></li>
-      <li><a href="../tips/tips.html">النصائح</a></li>
-      <li><a href="../dashboard/dashboard.html" class="staff-btn">أنا أصلاً من النجدة 🚨</a></li>
+      <li><a href="/complaints/" id="navComplaints">صفحة الشكاوي</a></li>
+      <li><a href="/tips/" id="navTips">النصائح</a></li>
+      <li><a href="/about/" class="active" id="navAbout">عنّا</a></li>
     </ul>
-
-    <button class="theme-toggle" id="themeBtn">
-      🌙 الوضع الليلي
-    </button>
+    <div class="controls">
+      <select id="langSelect" onchange="changeLanguage(this.value)">
+        <option value="ar">العربية</option>
+        <option value="eng">ENG</option>
+        <option value="fra">FRA</option>
+      </select>
+      <button id="themeToggle" onclick="toggleTheme()">🌙</button>
+    </div>
   </header>
 
-  <!-- محتوى التعريف بالمؤسسات -->
   <main class="main-content">
     <div class="page-title">
       <h1>التعريف بالمؤسسات الهامة ومنصة النجدة</h1>
       <p>تعرف على تاريخ، مهام، ونشأة الهيئات القائمة على أمنك وسلامتك</p>
     </div>
 
-    <!-- أزرار التبويب بين المؤسسات -->
+
     <div class="tabs-nav">
       <button class="tab-btn active" data-tab="protection">🚒 الحماية المدنية</button>
       <button class="tab-btn" data-tab="police">🚓 الشرطة</button>
       <button class="tab-btn" data-tab="gendarmerie">🛡️ الدرك الوطني</button>
-      <button class="tab-btn" data-tab="platform">💻 منصة النجدة الذكية</button>
+
     </div>
 
-    <!-- محتوى تبويب الحماية المدنية -->
+    
     <div class="tab-content active" id="protection">
-      <div class="about-card">
-        <div class="card-header">
-          <div class="header-title">
-            <span class="card-icon">🚒</span>
-            <h2>سلاح الحماية المدنية</h2>
-          </div>
-          <span class="badge">عام التأسيس: 1964</span>
-        </div>
-        <div class="card-body">
-          <h3>النشأة والتاريخ:</h3>
-          <p>تأسست الحماية المدنية لتكون الجهاز الوطني الأول المكلف بإدارة الكوارث وإسعاف المواطنين. تطورت على مر العقود لتصبح هئية حديثة تعتمد على وسائل إنقاذ متطورة وفرق غوص وتدخل سريع.</p>
-          
-          <h3>المهام الرئيسية:</h3>
-          <ul>
-            <li>إخلاء وإسعاف ضحايا حوادث المرور والحوادث المنزلية.</li>
-            <li>مكافحة وإخماد حرائق الغابات والمصانع والبنايات.</li>
-            <li>الإنقاذ أثناء الكوارث الطبيعية مثل الفيضانات والزلزال.</li>
-            <li>تأمين المهرجانات والمجمعات الكبرى والوقاية من أخطار الغاز.</li>
-          </ul>
-        </div>
+  <div class="about-card">
+    <div class="card-header">
+      <div class="header-title">
+        <span class="card-icon">🚒</span>
+        <h2 id="protTitle">سلاح الحماية المدنية</h2>
       </div>
+      <span class="badge" id="protYear">عام التأسيس: 1964</span>
     </div>
+    <div class="card-body">
+      <h3 id="protHistoryTitle">النشأة والتاريخ:</h3>
+      <p id="protHistoryText">تأسست الحماية المدنية لتكون الجهاز الوطني الأول المكلف بإدارة الكوارث وإسعاف المواطنين. تطورت على مر العقود لتصبح هئية حديثة تعتمد على وسائل إنقاذ متطورة وفرق غوص وتدخل سريع.</p>
+      
+      <h3 id="protTasksTitle">المهام الرئيسية:</h3>
+      <ul>
+        <li id="protTask1">إخلاء وإسعاف ضحايا حوادث المرور والحوادث المنزلية.</li>
+        <li id="protTask2">مكافحة وإخماد حرائق الغابات والمصانع والبنايات.</li>
+        <li id="protTask3">الإنقاذ أثناء الكوارث الطبيعية مثل الفيضانات والزلزال.</li>
+        <li id="protTask4">تأمين المهرجانات والمجمعات الكبرى والوقاية من أخطار الغاز.</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
-    <!-- محتوى تبويب الشرطة -->
+
     <div class="tab-content" id="police">
-      <div class="about-card">
-        <div class="card-header">
-          <div class="header-title">
-            <span class="card-icon">🚓</span>
-            <h2>الأمن الوطني (الشرطة)</h2>
-          </div>
-          <span class="badge">عام التأسيس: 1962</span>
-        </div>
-        <div class="card-body">
-          <h3>النشأة والتاريخ:</h3>
-          <p>تأسست الشرطة الوطنية فور الاستقلال لحفظ النظام العام في الوسط الحضري والمدن. وتضم اليوم وحدات متخصصة كشرطة العمران، مكافحة الجريمة الإلكترونية، وفرق البحث والتدخل.</p>
-          
-          <h3>المهام الرئيسية:</h3>
-          <ul>
-            <li>حماية المواطنين والممتلكات العامة والخاصة داخل المدن.</li>
-            <li>مكافحة الجريمة المنظمة، السرقة، والابتزاز الرقمي.</li>
-            <li>تنظيم حركة المرور وتسهيل التنقل داخل المناطق الحضرية.</li>
-            <li>استقبال بلاغات المواطنين والتدخل الفوري عند أي اعتداء.</li>
-          </ul>
-        </div>
+  <div class="about-card">
+    <div class="card-header">
+      <div class="header-title">
+        <span class="card-icon">🚓</span>
+        <h2 id="policeTitle">الأمن الوطني (الشرطة)</h2>
       </div>
+      <span class="badge" id="policeYear">عام التأسيس: 1962</span>
     </div>
+    <div class="card-body">
+      <h3 id="policeHistoryTitle">النشأة والتاريخ:</h3>
+      <p id="policeHistoryText">تأسست الشرطة الوطنية فور الاستقلال لحفظ النظام العام في الوسط الحضري والمدن. وتضم اليوم وحدات متخصصة كشرطة العمران، مكافحة الجريمة الإلكترونية، وفرق البحث والتدخل.</p>
+      
+      <h3 id="policeTasksTitle">المهام الرئيسية:</h3>
+      <ul>
+        <li id="policeTask1">حماية المواطنين والممتلكات العامة والخاصة داخل المدن.</li>
+        <li id="policeTask2">مكافحة الجريمة المنظمة، السرقة، والابتزاز الرقمي.</li>
+        <li id="policeTask3">تنظيم حركة المرور وتسهيل التنقل داخل المناطق الحضرية.</li>
+        <li id="policeTask4">استقبال بلاغات المواطنين والتدخل الفوري عند أي اعتداء.</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
-    <!-- محتوى تبويب الدرك الوطني -->
+
     <div class="tab-content" id="gendarmerie">
       <div class="about-card">
         <div class="card-header">
@@ -112,29 +115,6 @@
       </div>
     </div>
 
-    <!-- محتوى تبويب منصة النجدة الذكية -->
-    <div class="tab-content" id="platform">
-      <div class="about-card highlight">
-        <div class="card-header">
-          <div class="header-title">
-            <span class="card-icon">💻</span>
-            <h2>منصة النجدة الذكية (Smart Emergency System)</h2>
-          </div>
-          <span class="badge badge-accent">مشروع تكنولوجي واعد</span>
-        </div>
-        <div class="card-body">
-          <h3>عن المنصة وهدف التأسيس:</h3>
-          <p>مشروع برمجي وذكاء اصطناعي يهدف إلى تقليل زمن استجابة فرق الإسعاف والأمن من خلال ربط المواطن بغرفة العمليات بضغطة زر واحدة تنقل موقعه الجغرافي (GPS) تلقائياً.</p>
-          
-          <h3>التقنيات المستخدمة:</h3>
-          <ul>
-            <li><strong>الذكاء الاصطناعي (AI):</strong> تحليل النص وتحديد أولوية البلاغ ودرجة خطورته.</li>
-            <li><strong>الخرائط التفاعلية (Leaflet & OpenStreetMap):</strong> عرض موقع البلاغ على شاشة رجال النجدة بدقة.</li>
-            <li><strong>تصميم متجاوب (Responsive UI):</strong> يعمل بسلاسة على الهواتف والشاشات المختلفة مع وضع ليلي وصباحي.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
 
   </main>
 
