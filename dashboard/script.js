@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const themeBtn = document.getElementById('themeBtn');
   const alertsList = document.getElementById('alertsList');
 
-  // 1. التبديل بين الوضع الصباحي والليلي
   themeBtn.addEventListener('click', () => {
     document.body.classList.toggle('light-mode');
     if (document.body.classList.contains('light-mode')) {
@@ -12,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 2. تهيئة الخريطة التفاعلية Leaflet (التركيز الافتراضي على الجزائر)
+
   const map = L.map('map').setView([36.165, 1.334], 12);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -22,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let markers = {};
 
-  // 3. دالة جلب البلاغات من السيرفر ورسمها على الخريطة
   function fetchAlerts() {
     fetch('/api/alerts')
       .then(res => res.json())
@@ -44,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="alert-desc">${alertItem.description || 'بلاغ عاجل مع تحديد GPS'}</div>
           `;
 
-          // عند الضغط على البلاغ في القائمة الجانبية، تنتقل الخريطة إلى موقعه
           card.addEventListener('click', () => {
             map.flyTo([alertItem.latitude, alertItem.longitude], 16);
             if (markers[alertItem.id]) {
@@ -54,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           alertsList.appendChild(card);
 
-          // إضافة العلامة (Marker) على الخريطة
+
           if (!markers[alertItem.id]) {
             const marker = L.marker([alertItem.latitude, alertItem.longitude])
               .addTo(map)
@@ -70,8 +67,40 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .catch(err => console.error("خطأ في جلب البلاغات:", err));
   }
-
-  // جلب البلاغات فور فتح الصفحة وتحديثها كل 3 ثوانٍ
   fetchAlerts();
   setInterval(fetchAlerts, 3000);
 });
+let currentSector = '';
+
+const sectorPasswords = {
+    civil: 'chlef_civil',
+    police: 'chlef_police',
+    gendarmerie: 'chlef_gendarmerie',
+    hospital: 'chlef_hospital'
+};
+
+
+function openLoginModal(sectorKey, sectorName) {
+    currentSector = sectorKey;
+    document.getElementById('modalTitle').textContent = `تسجيل دخول: ${sectorName}`;
+    document.getElementById('sectorPassword').value = '';
+    document.getElementById('errorMsg').style.display = 'none';
+    document.getElementById('loginModal').style.display = 'flex';
+}
+
+function closeLoginModal() {
+    document.getElementById('loginModal').style.display = 'none';
+}
+
+function verifyPassword() {
+    const enteredPass = document.getElementById('sectorPassword').value;
+    
+    if (enteredPass === sectorPasswords[currentSector]) {
+
+        localStorage.setItem('active_sector', currentSector);
+
+        window.location.href = '../dashboard/dashboard.html'; 
+    } else {
+        document.getElementById('errorMsg').style.display = 'block';
+    }
+}
