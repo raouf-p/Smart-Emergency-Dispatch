@@ -8,28 +8,31 @@
 </head>
 <body>
 
-  <!-- الهيدر العلوي -->
   <header>
+    <div class="logo" id="logoText">🚨 نظام الطوارئ الذكي</div>
     <ul class="nav-links">
-      <li><a href="../complaints/index.html">صفحة الشكاوي</a></li>
-      <li><a href="../about/about.html">عنّا</a></li>
-      <li><a href="../tips/tips.html" class="active">النصائح</a></li>
-      <li><a href="../dashboard/dashboard.html" class="staff-btn">أنا أصلاً من النجدة 🚨</a></li>
+      <li><a href="/complaints/" id="navComplaints">صفحة الشكاوي</a></li>
+      <li><a href="/tips/" id="navTips">النصائح</a></li>
+      <li><a href="/about/" class="active" id="navAbout">عنّا</a></li>
     </ul>
-
-    <button class="theme-toggle" id="themeBtn">
-      🌙 الوضع الليلي
-    </button>
+    <div class="controls">
+      <select id="langSelect" onchange="changeLanguage(this.value)">
+        <option value="ar">العربية</option>
+        <option value="eng">ENG</option>
+        <option value="fra">FRA</option>
+      </select>
+      <button id="themeToggle" onclick="toggleTheme()">🌙</button>
+    </div>
   </header>
 
-  <!-- محتوى النصائح الرئيسي -->
+
   <main class="main-content">
     <div class="page-title">
       <h1>دليل النصائح والإسعافات الأولية</h1>
       <p>إرشادات وتوجيهات هامة للتصرف السليم أثناء حالات الطوارئ والخطورة</p>
     </div>
 
-    <!-- أزرار التنقل بين نصائح المؤسسات -->
+
     <div class="tabs-nav">
       <button class="tab-btn active" data-tab="protection-tips">🚒 الحماية المدنية</button>
       <button class="tab-btn" data-tab="police-tips">🚓 الشرطة</button>
@@ -37,13 +40,13 @@
       <button class="tab-btn" data-tab="general-tips">⚠️ السلامة العامة</button>
     </div>
 
-    <!-- تبويب نصائح الحماية المدنية (الإسعافات الأولية) -->
+
     <div class="tab-content active" id="protection-tips">
       <div class="tips-grid">
         
         <div class="tip-card">
           <div class="tip-header">
-            <span class="tip-icon">🫀</span>
+            <span class="tip-icon">💓</span>
             <h3>الإنعاش الرئوي (CPR)</h3>
           </div>
           <p>عند رؤية شخص فاقد للوعي ولا يتنفس:</p>
@@ -69,7 +72,7 @@
 
         <div class="tip-card">
           <div class="tip-header">
-            <span class="tip-icon">🫁</span>
+            <span class="tip-icon">😵</span>
             <h3>الإنسداد الخنقي (الاختناق)</h3>
           </div>
           <p>عند غصص شخص وعدم قدرته على التنفس أو الكلام:</p>
@@ -83,7 +86,7 @@
       </div>
     </div>
 
-    <!-- تبويب نصائح الشرطة (السرقة والابتزاز) -->
+
     <div class="tab-content" id="police-tips">
       <div class="tips-grid">
 
@@ -114,7 +117,7 @@
       </div>
     </div>
 
-    <!-- تبويب نصائح الدرك الوطني (الخطف والسلامة) -->
+
     <div class="tab-content" id="gendarmerie-tips">
       <div class="tips-grid">
 
