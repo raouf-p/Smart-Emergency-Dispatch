@@ -35,7 +35,7 @@ body {
   flex-direction: column;
 }
 
-/* Header */
+
 header {
   background: var(--card-bg);
   border-bottom: 1px solid var(--border-color);
@@ -86,7 +86,7 @@ header {
   font-weight: bold;
 }
 
-/* Container */
+
 .main-content {
   max-width: 1000px;
   margin: 40px auto;
@@ -109,7 +109,7 @@ header {
   color: var(--subtext-color);
 }
 
-/* Tabs Navigation */
+
 .tabs-nav {
   display: flex;
   gap: 10px;
@@ -139,7 +139,7 @@ header {
   border-color: var(--accent);
 }
 
-/* Tab Contents */
+
 .tab-content {
   display: none;
   animation: fadeIn 0.4s ease;
@@ -149,7 +149,7 @@ header {
   display: block;
 }
 
-/* Tips Cards Grid */
+
 .tips-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
